@@ -1,51 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Ship, Eye, Filter, CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import axiosInstance from '../../api/axiosInstance';
 
 export default function RecentInspectionsTable() {
   const [filterStatus, setFilterStatus] = useState('All');
+  const [inspectionsData, setInspectionsData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const inspectionsData = [
-    {
-      id: 'SPB-2026-0091',
-      vessel: 'KM Mulia Rahayu',
-      imo: 'IMO 982143',
-      cargo: 'General Cargo',
-      agent: 'PT Bahari Nusantara',
-      time: '10:45 WIB',
-      status: 'Disetujui',
-      statusType: 'success',
-    },
-    {
-      id: 'SPB-2026-0090',
-      vessel: 'KM Sumber Laut 02',
-      imo: 'IMO 974120',
-      cargo: 'BBM / Tangker',
-      agent: 'PT Pelayaran Mandiri',
-      time: '09:15 WIB',
-      status: 'Dalam Inspeksi',
-      statusType: 'process',
-    },
-    {
-      id: 'SPB-2026-0089',
-      vessel: 'KM Nusantara Jaya',
-      imo: 'IMO 965411',
-      cargo: 'Sembako & Hasil Tani',
-      agent: 'CV Samudra Indah',
-      time: '08:30 WIB',
-      status: 'Pending Audit',
-      statusType: 'warning',
-    },
-    {
-      id: 'SPB-2026-0088',
-      vessel: 'KM Bintang Bahari',
-      imo: 'IMO 951230',
-      cargo: 'Kayu Olahan',
-      agent: 'PT Lautan Berlian',
-      time: 'Kemarin, 16:20',
-      status: 'Disetujui',
-      statusType: 'success',
-    },
-  ];
+  useEffect(() => {
+    const fetchInspections = async () => {
+      try {
+        const response = await axiosInstance.get('/api/inspection');
+        if (response.data && response.data.success) {
+          const mappedData = response.data.data.map((item) => ({
+            id: item.spbNumber,
+            vessel: item.vessel,
+            imo: item.imo || 'IMO N/A',
+            cargo: item.cargo || 'General',
+            agent: item.agent || 'Agen Laut',
+            time: item.inspectionTime || item.createdAt,
+            status: item.status,
+            statusType: item.statusType || 'warning',
+          }));
+          setInspectionsData(mappedData);
+        }
+      } catch (error) {
+        console.error('Failed to fetch inspections:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInspections();
+  }, []);
 
   const filteredData = filterStatus === 'All'
     ? inspectionsData

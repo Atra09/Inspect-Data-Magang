@@ -1,7 +1,18 @@
 import axios from 'axios';
 
+const currentHost = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+const defaultBaseUrl = `http://${currentHost}:3003`;
+const rawBaseUrl = import.meta.env.VITE_API_URL || defaultBaseUrl;
+
+// Dynamic IP fallback: Replace localhost with local IP if accessed from external device/phone
+const targetBaseUrl = (rawBaseUrl.includes('localhost') && currentHost !== 'localhost')
+  ? rawBaseUrl.replace('localhost', currentHost)
+  : rawBaseUrl;
+
+const normalizedBaseUrl = targetBaseUrl.replace(/\/api\/?$/, '');
+
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3003',
+  baseURL: normalizedBaseUrl,
 });
 
 axiosInstance.interceptors.request.use(

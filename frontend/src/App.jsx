@@ -4,6 +4,11 @@ import axiosInstance from './api/axiosInstance';
 import LoginPage from './pages/auth/login';
 import AppLayout from './component/layout/AppLayout';
 import Dashboard from './pages/dashboard/dashboard';
+import ScanKtpPage from './pages/inspeksi/ScanKtpPage';
+import ClearanceKapalPage from './pages/clearance/ClearanceKapalPage';
+import ManifestMuatanPage from './pages/manifest/ManifestMuatanPage';
+import DataMasterPage from './pages/master/DataMasterPage';
+import LogAktivitasPage from './pages/log/LogAktivitasPage';
 
 const ProtectedRoute = () => {
     const token = sessionStorage.getItem('token') || localStorage.getItem('token');
@@ -46,6 +51,11 @@ function App() {
                 <Route element={<ProtectedRoute />}>
                     <Route element={<AppLayout />}>
                         <Route path="/" element={<Dashboard />} />
+                        <Route path="/inspeksi" element={<ScanKtpPage />} />
+                        <Route path="/clearance" element={<ClearanceKapalPage />} />
+                        <Route path="/manifest" element={<ManifestMuatanPage />} />
+                        <Route path="/master" element={<DataMasterPage />} />
+                        <Route path="/log-aktivitas" element={<LogAktivitasPage />} />
                     </Route>
                 </Route>
 

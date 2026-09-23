@@ -1,43 +1,67 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Ship, CheckCircle2, AlertTriangle, Anchor, ArrowUpRight } from 'lucide-react';
+import axiosInstance from '../../api/axiosInstance';
 
 export default function StatCards() {
+  const [statsData, setStatsData] = useState({
+    totalClearance: 0,
+    inInspection: 0,
+    pendingAudit: 0,
+    mismatchManifests: 0,
+    passRate: '0%',
+  });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await axiosInstance.get('/api/stats');
+        if (response.data && response.data.success) {
+          setStatsData(response.data.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch dashboard stats from MySQL:', error);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
   const stats = [
     {
-      title: 'Total Clearance Kapal',
-      value: '142',
-      unit: 'Kapal minggu ini',
-      change: '+12.5%',
+      title: 'Total Clearance Disetujui',
+      value: statsData.totalClearance || '0',
+      unit: 'Kapal terverifikasi',
+      change: 'Clearance Resmi',
       isPositive: true,
       icon: Ship,
       iconBg: 'bg-[#0284C7]/10 text-[#0284C7]',
       borderColor: 'border-[#0284C7]/20',
     },
     {
-      title: 'Kapal Berlabuh di Dermaga',
-      value: '38',
-      unit: 'Status Tambat',
-      change: '+4 Kapal hari ini',
+      title: 'Kapal Dalam Inspeksi',
+      value: statsData.inInspection || '0',
+      unit: 'Status Gangway',
+      change: 'Proses Boarding',
       isPositive: true,
       icon: Anchor,
       iconBg: 'bg-sky-500/10 text-sky-600',
       borderColor: 'border-sky-200',
     },
     {
-      title: 'Inspeksi Lapangan Lolos',
-      value: '98.4%',
-      unit: 'Verifikasi Fisik & Dokumen',
-      change: '104 Lolos',
+      title: 'Tingkat Kelolosan Audit',
+      value: statsData.passRate || '100%',
+      unit: 'Verifikasi KTP & NIK',
+      change: `${statsData.totalClearance || 0} SPB Disetujui`,
       isPositive: true,
       icon: CheckCircle2,
       iconBg: 'bg-emerald-500/10 text-emerald-600',
       borderColor: 'border-emerald-200',
     },
     {
-      title: 'Flag Peringatan Manifest',
-      value: '3',
-      unit: 'Membutuhkan Audit',
-      change: 'Perlu Verifikasi',
+      title: 'Flag Alert / Mismatch',
+      value: statsData.pendingAudit + (statsData.mismatchManifests || 0),
+      unit: 'Perlu Verifikasi Syahbandar',
+      change: 'Audit Lapangan',
       isPositive: false,
       icon: AlertTriangle,
       iconBg: 'bg-amber-500/10 text-amber-600',

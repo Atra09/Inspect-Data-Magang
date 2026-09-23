@@ -13,7 +13,7 @@ const FloatingScanButton = () => {
   if (!visible) return null;
 
   return (
-    <div className="fixed bottom-12 right-10 z-50">
+    <div className="fixed bottom-6 right-5 sm:bottom-8 sm:right-8 z-50">
       <div className="relative group">
         {/* Main Floating Camera Scan Button */}
         <button

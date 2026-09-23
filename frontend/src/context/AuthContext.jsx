@@ -1,4 +1,5 @@
 import { createContext, useState, useEffect, useContext } from 'react';
+import axiosInstance from '../api/axiosInstance';
 
 const AuthContext = createContext(null);
 
@@ -10,16 +11,21 @@ export const AuthProvider = ({ children }) => {
         const token = sessionStorage.getItem('token') || localStorage.getItem('token');
         if (token) {
             try {
-                const savedUser = sessionStorage.getItem('user') || localStorage.getItem('user');
-                if (savedUser) {
-                    setUser(JSON.parse(savedUser));
+                const response = await axiosInstance.get('/api/auth/me');
+                if (response.data && response.data.success) {
+                    setUser(response.data.user);
+                    sessionStorage.setItem('user', JSON.stringify(response.data.user));
                 }
             } catch (error) {
-                console.error("Token/User data error:", error);
+                console.error("Token validation error:", error);
                 sessionStorage.removeItem('token');
+                sessionStorage.removeItem('user');
                 localStorage.removeItem('token');
+                localStorage.removeItem('user');
                 setUser(null);
             }
+        } else {
+            setUser(null);
         }
         setLoading(false);
     };

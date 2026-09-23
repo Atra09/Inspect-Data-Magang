@@ -61,18 +61,21 @@ export default function AppHeader() {
             </div>
             <div className="hidden md:flex flex-col text-left pr-1">
               <span className="text-xs font-extrabold text-slate-800 leading-tight">
-                {user?.username || 'Petugas KSOP'}
+                {user?.name || user?.username || 'Petugas KSOP'}
               </span>
-              <span className="text-[10px] text-slate-500 font-medium">Syahbandar Utama</span>
+              <span className="text-[10px] text-slate-500 font-medium">
+                {user?.role || 'Syahbandar Utama'}
+              </span>
             </div>
           </button>
 
           {/* Profile Dropdown Menu */}
           {showProfileMenu && (
-            <div className="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+            <div className="absolute right-0 mt-2 w-52 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
               <div className="px-4 py-2 border-b border-slate-100">
-                <p className="text-xs font-bold text-slate-800">{user?.username || 'Petugas KSOP'}</p>
-                <p className="text-[10px] text-slate-400 truncate">ksop.officer@dephub.go.id</p>
+                <p className="text-xs font-bold text-slate-800">{user?.name || user?.username || 'Petugas KSOP'}</p>
+                <p className="text-[10px] text-slate-500">Role: <span className="font-semibold text-[#0284C7]">{user?.role || 'Syahbandar'}</span></p>
+                {user?.nip && <p className="text-[10px] text-slate-400">NIP: {user.nip}</p>}
               </div>
               <button
                 type="button"

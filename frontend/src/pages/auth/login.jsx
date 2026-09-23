@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, Lock, Unlock, X } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import axiosInstance from '../../api/axiosInstance';
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
@@ -13,29 +14,48 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     if (e) e.preventDefault();
+    if (!username || !password) {
+      setNotification('Harap masukkan username dan password.');
+      return;
+    }
+
     setIsLoading(true);
     setNotification('');
 
-    setTimeout(() => {
-      const dummyToken = 'ksop-session-token-' + Date.now();
-      const userData = { username: username || 'Petugas KSOP', role: 'Syahbandar' };
+    try {
+      const response = await axiosInstance.post('/api/auth/login', {
+        username,
+        password,
+      });
 
-      if (login) {
-        login(dummyToken, userData);
+      if (response.data && response.data.success) {
+        const { token, user: userData } = response.data;
+
+        if (login) {
+          login(token, userData);
+        } else {
+          sessionStorage.setItem('token', token);
+          sessionStorage.setItem('user', JSON.stringify(userData));
+        }
+
+        setNotification('Login Berhasil! Mengalihkan ke Dashboard...');
+
+        setTimeout(() => {
+          navigate('/', { replace: true });
+        }, 500);
       } else {
-        sessionStorage.setItem('token', dummyToken);
-        sessionStorage.setItem('user', JSON.stringify(userData));
+        setNotification(response.data?.message || 'Login gagal.');
       }
-
+    } catch (error) {
+      const errorMsg =
+        error.response?.data?.message ||
+        'Gagal terhubung ke server backend. Pastikan server berjalan.';
+      setNotification(errorMsg);
+    } finally {
       setIsLoading(false);
-      setNotification('Login Berhasil! Mengalihkan ke Dashboard...');
-
-      setTimeout(() => {
-        navigate('/', { replace: true });
-      }, 500);
-    }, 600);
+    }
   };
 
   return (
